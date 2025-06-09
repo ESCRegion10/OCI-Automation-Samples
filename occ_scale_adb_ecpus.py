@@ -37,7 +37,7 @@
 #
 # Usage:        python /home/opc/scripts/occ_scale_adb_ecpus.py [ECPU count] [OCI ADB console database name]
 #
-# Example:      python /home/opc/scripts/occ_scale_adb_ecpus.py 5 MY_ADB
+# Example:      python /home/opc/scripts/occ_scale_adb_ecpus.py 5 YOUR_ADB
 #
 # Revision History:
 # Date          Author          Remarks
@@ -50,6 +50,7 @@ import oci
 import numbers
 import sys
 import platform
+from datetime import datetime
 
 # Load the default OCI configuration
 os = platform.system()
@@ -58,8 +59,8 @@ if os == "Windows":
 elif os == "Linux":
     config = oci.config.from_file("~/.oci/config", "DEFAULT")  # for Linux
 else:
-    print(f"Unknown operating system {os} ...") 
-    sys.exit(2)  
+    print(f"{datetime.now()} - Unknown operating system {os} ...")
+    sys.exit(2)
 
 # Initialize the database client
 database_client = oci.database.DatabaseClient(config)
@@ -90,32 +91,32 @@ if __name__ == "__main__":
             elif (sys.argv[2] == '<YOUR_PROD_ADB_NAME>'):  
                 ADB_OCID = "<YOUR_PROD_ADB_OCID>" 
             else:
-                print(f"Please provide a valid ADB name for the second command-line argument ...")            
-        
-        except ValueError:    
-            print(f"Please provide a number as the first command-line argument for new ECPU count ...") 
+                print(f"{datetime.now()} - Please provide a valid ADB name for the second command-line argument ...")
+
+        except ValueError:
+            print(f"{datetime.now()} - Please provide a number as the first command-line argument for new ECPU count ...")
     else:
-        print(f"Please provide the new ECPU count the first command-line argument and the ADB name to scale as the second command-line argument ...") 
+        print(f"{datetime.now()} - Please provide the new ECPU count the first command-line argument and the ADB name to scale as the second command-line argument ...")
         sys.exit(3)
 
     try:
         # Fetch current database details
         db_info = get_autonomous_db(ADB_OCID)
-        print(f"Current ECPU: {int(db_info.compute_count)}")
+        print(f"{datetime.now()} - Current ECPU: {int(db_info.compute_count)}")
 
         # Scale the database
-        print(f"Scaling database {sys.argv[2]} to {new_ecpu} ECPU ...")
+        print(f"{datetime.now()} - Scaling database {sys.argv[2]} to {new_ecpu} ECPU ...")
 
         try:
             scale_autonomous_db(ADB_OCID, new_ecpu)
-            print(f"Scaling operation initiated successfully ...")
+            print(f"{datetime.now()} - Scaling operation initiated successfully ...")
         except oci.exceptions.ServiceError:
-            print(f"Scaling not needed because current configuraion already at requested scale ...")
-            sys.exit(0)      
+            print(f"{datetime.now()} - Scaling not needed because current configuration already at requested scale ...")
+            sys.exit(0)
 
     except oci.exceptions.ServiceError as ex:
-        print(f"OCI Service Error: {ex}")
+        print(f"{datetime.now()} - OCI Service Error: {ex}")
     except Exception as ex:
-        print(f"Unexpected error: {ex}")
+        print(f"{datetime.now()} - Unexpected error: {ex}")
 
 sys.exit(0)
